@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="description" content="Raven Loyalty Card App - Track customer rewards and purchases">
+    
+    <!-- iOS Web App Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Raven Loyalty">
+    <meta name="apple-mobile-web-app-status-bar" content="black-translucent">
+    
+    <!-- iOS Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect fill='%231a1a2e' width='180' height='180'/%3E%3Ctext x='90' y='135' font-size='120' text-anchor='middle' fill='%23d1a46b'%3E✨%3C/text%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect fill='%231a1a2e' width='180' height='180'/%3E%3Ctext x='90' y='135' font-size='120' text-anchor='middle' fill='%23d1a46b'%3E✨%3C/text%3E%3C/svg%3E">
+    
+    <!-- Android/Web Manifest -->
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Raven%20Loyalty%20Cards%22,%22short_name%22:%22Raven%20Loyalty%22,%22description%22:%22Track%20customer%20rewards%20and%20purchases%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22scope%22:%22.%22,%22theme_color%22:%22%231a1a2e%22,%22background_color%22:%22%231a1a2e%22,%22orientation%22:%22portrait-primary%22}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231a1a2e' width='100' height='100'/%3E%3Ctext x='50' y='75' font-size='70' text-anchor='middle' fill='%23d1a46b'%3E✨%3C/text%3E%3C/svg%3E">
+    
+    <title>Raven Loyalty Card App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+
+        .sidebar {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid rgba(209, 164, 107, 0.3);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .sidebar h2 {
+            color: #d1a46b;
+            margin-bottom: 20px;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .customer-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .customer-form input {
+            padding: 12px;
+            border: 1px solid rgba(209, 164, 107, 0.5);
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .customer-form input:focus {
+            outline: none;
+            border-color: #d1a46b;
+            box-shadow: 0 0 0 3px rgba(209, 164, 107, 0.2);
+        }
+
+        .btn-primary {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #d1a46b 0%, #c89858 100%);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(209, 164, 107, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .customers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .customer-btn {
+            padding: 15px;
+            background: rgba(209, 164, 107, 0.1);
+            border: 2px solid rgba(209, 164, 107, 0.3);
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .customer-btn:hover {
+            background: rgba(209, 164, 107, 0.2);
+            border-color: #d1a46b;
+        }
+
+        .customer-btn.active {
+            background: rgba(209, 164, 107, 0.3);
+            border-color: #d1a46b;
+            color: #d1a46b;
+        }
+
+        .main-content {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 40px;
+            border: 1px solid rgba(209, 164, 107, 0.3);
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-container {
+            text-align: center;
+        }
+
+        .card-header {
+            margin-bottom: 40px;
+        }
+
+        .customer-name {
+            font-size: 32px;
+            font-weight: 700;
+            color: #d1a46b;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            color: #b8a5a5;
+            letter-spacing: 1px;
+        }
+
+        .circles-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .row-label {
+            font-size: 14px;
+            color: #d1a46b;
+            font-weight: 600;
+            min-width: 80px;
+            text-align: right;
+            text-transform: uppercase;
+        }
+
+        .circles {
+            display: flex;
+            gap: 20px;
+        }
+
+        .circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid rgba(209, 164, 107, 0.5);
+            background: rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            position: relative;
+            font-weight: 700;
+            color: #d1a46b;
+            font-size: 12px;
+        }
+
+        .circle:hover:not(.filled) {
+            border-color: #d1a46b;
+            box-shadow: 0 0 15px rgba(209, 164, 107, 0.4);
+            transform: scale(1.05);
+        }
+
+        .circle.filled {
+            background: linear-gradient(135deg, #d1a46b 0%, #c89858 100%);
+            border-color: #d1a46b;
+            color: #1a1a2e;
+            box-shadow: 0 0 20px rgba(209, 164, 107, 0.6);
+        }
+
+        .circle.reward {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border-color: #ffd700;
+            color: #1a1a2e;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.08);
+            }
+        }
+
+        .reward-badge {
+            position: absolute;
+            top: -25px;
+            font-size: 11px;
+            background: #d1a46b;
+            color: #1a1a2e;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .reward-text {
+            margin-top: 40px;
+            font-size: 18px;
+            color: #ffd700;
+            font-weight: 600;
+            min-height: 30px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn-secondary {
+            padding: 12px 25px;
+            background: rgba(209, 164, 107, 0.2);
+            color: #d1a46b;
+            border: 2px solid #d1a46b;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-secondary:hover {
+            background: #d1a46b;
+            color: #1a1a2e;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #b8a5a5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #1a1a2e;
+            padding: 20px 25px;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.4);
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.4s ease-out;
+            max-width: 400px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(500px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(500px);
+                opacity: 0;
+            }
+        }
+
+        .notification.hide {
+            animation: slideOut 0.4s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+            }
+
+            .customer-name {
+                font-size: 24px;
+            }
+
+            .circle {
+                width: 50px;
+                height: 50px;
+            }
+
+            .row {
+                gap: 12px;
+            }
+
+            .circles {
+                gap: 12px;
+            }
+        }
+
+        .stats {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(209, 164, 107, 0.3);
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .stat {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #d1a46b;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #b8a5a5;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>👥 Customers</h2>
+            <div class="customer-form">
+                <input type="text" id="newCustomerInput" placeholder="Customer name...">
+                <button class="btn-primary" onclick="addCustomer()">Add Customer</button>
+            </div>
+            <div class="customers-list" id="customersList"></div>
+        </div>
+
+        <div class="main-content" id="mainContent">
+            <div class="empty-state">
+                <p>👋 Welcome to Raven Loyalty Cards</p>
+                <p>Select a customer or add a new one to get started</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let customers = [];
+        let selectedCustomer = null;
+
+        // Initialize storage and load data
+        async function initializeApp() {
+            try {
+                const stored = await window.storage.get('raven-loyalty-customers');
+                if (stored) {
+                    customers = JSON.parse(stored.value);
+                }
+            } catch (err) {
+                console.log('First time setup or storage not available');
+            }
+            renderCustomersList();
+        }
+
+        // Save customers to storage
+        async function saveCustomers() {
+            try {
+                await window.storage.set('raven-loyalty-customers', JSON.stringify(customers));
+            } catch (err) {
+                console.error('Error saving customers:', err);
+            }
+        }
+
+        // Add new customer
+        async function addCustomer() {
+            const input = document.getElementById('newCustomerInput');
+            const name = input.value.trim();
+
+            if (!name) {
+                alert('Please enter a customer name');
+                return;
+            }
+
+            // Check if customer already exists
+            if (customers.find(c => c.name.toLowerCase() === name.toLowerCase())) {
+                alert('Customer already exists');
+                return;
+            }
+
+            const newCustomer = {
+                id: Date.now(),
+                name: name,
+                circles: Array(10).fill(false),
+                createdAt: new Date().toISOString(),
+                rewards: []
+            };
+
+            customers.push(newCustomer);
+            await saveCustomers();
+            input.value = '';
+            renderCustomersList();
+            selectCustomer(newCustomer.id);
+        }
+
+        // Select customer
+        function selectCustomer(id) {
+            selectedCustomer = customers.find(c => c.id === id);
+            renderCustomersList();
+            renderLoyaltyCard();
+        }
+
+        // Render customers list
+        function renderCustomersList() {
+            const list = document.getElementById('customersList');
+            list.innerHTML = '';
+
+            if (customers.length === 0) {
+                list.innerHTML = '<div style="color: #b8a5a5; font-size: 14px; padding: 15px;">No customers yet</div>';
+                return;
+            }
+
+            customers.forEach(customer => {
+                const btn = document.createElement('button');
+                btn.className = `customer-btn ${selectedCustomer?.id === customer.id ? 'active' : ''}`;
+                const completed = customer.circles.filter(c => c).length;
+                btn.innerHTML = `
+                    <div>${customer.name}</div>
+                    <div style="font-size: 12px; color: #d1a46b; margin-top: 5px;">${completed}/10 stamps</div>
+                `;
+                btn.onclick = () => selectCustomer(customer.id);
+                list.appendChild(btn);
+            });
+        }
+
+        // Render loyalty card
+        function renderLoyaltyCard() {
+            const mainContent = document.getElementById('mainContent');
+
+            if (!selectedCustomer) {
+                mainContent.innerHTML = `
+                    <div class="empty-state">
+                        <p>👋 Welcome to Raven Loyalty Cards</p>
+                        <p>Select a customer or add a new one to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const completed = selectedCustomer.circles.filter(c => c).length;
+            const progress = (completed / 10) * 100;
+
+            let html = `
+                <div class="card-container">
+                    <div class="card-header">
+                        <div class="customer-name">${selectedCustomer.name}</div>
+                        <div class="card-title">✨ RAVEN LOYALTY CARD ✨</div>
+                    </div>
+
+                    <div class="circles-container">
+                        <div class="row">
+                            <div class="row-label">Row 1</div>
+                            <div class="circles">
+            `;
+
+            // Row 1
+            for (let i = 0; i < 5; i++) {
+                const isFilled = selectedCustomer.circles[i];
+                const isReward = i === 4;
+                html += `
+                    <div class="circle ${isFilled ? 'filled' : ''} ${isFilled && isReward ? 'reward' : ''}" 
+                         onclick="toggleCircle(${i})"
+                         style="${isFilled && isReward ? 'cursor: not-allowed;' : ''}">
+                        ${isFilled && isReward ? '<div class="reward-badge">-30%</div>' : ''}
+                        ${i + 1}
+                    </div>
+                `;
+            }
+
+            html += `
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="row-label">Row 2</div>
+                            <div class="circles">
+            `;
+
+            // Row 2
+            for (let i = 5; i < 10; i++) {
+                const isFilled = selectedCustomer.circles[i];
+                const isReward = i === 9;
+                html += `
+                    <div class="circle ${isFilled ? 'filled' : ''} ${isFilled && isReward ? 'reward' : ''}"
+                         onclick="toggleCircle(${i})"
+                         style="${isFilled && isReward ? 'cursor: not-allowed;' : ''}">
+                        ${isFilled && isReward ? '<div class="reward-badge">FREE!</div>' : ''}
+                        ${i - 4}
+                    </div>
+                `;
+            }
+
+            html += `
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-value">${completed}</div>
+                            <div class="stat-label">Stamps Collected</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">${10 - completed}</div>
+                            <div class="stat-label">Stamps Left</div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn-secondary" onclick="deleteCustomer()">Delete Customer</button>
+                    </div>
+                </div>
+            `;
+
+            mainContent.innerHTML = html;
+        }
+
+        // Toggle circle completion
+        async function toggleCircle(index) {
+            if (!selectedCustomer) return;
+
+            selectedCustomer.circles[index] = !selectedCustomer.circles[index];
+
+            // Check for rewards
+            if (selectedCustomer.circles[index]) {
+                if (index === 4) {
+                    showNotification(`🎉 ${selectedCustomer.name} earned 30% OFF!`);
+                } else if (index === 9) {
+                    showNotification(`🏆 ${selectedCustomer.name} earned a FREE ITEM!`);
+                }
+            }
+
+            await saveCustomers();
+            renderLoyaltyCard();
+            renderCustomersList();
+        }
+
+        // Delete customer
+        async function deleteCustomer() {
+            if (!selectedCustomer) return;
+
+            if (confirm(`Are you sure you want to delete ${selectedCustomer.name}?`)) {
+                customers = customers.filter(c => c.id !== selectedCustomer.id);
+                selectedCustomer = null;
+                await saveCustomers();
+                renderCustomersList();
+                renderLoyaltyCard();
+            }
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.textContent = message;
+            document.body.appendChild(notif);
+
+            setTimeout(() => {
+                notif.classList.add('hide');
+                setTimeout(() => notif.remove(), 400);
+            }, 4000);
+
+            // Also try browser notification if available
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('Raven Loyalty Card', {
+                    body: message,
+                    icon: '✨'
+                });
+            }
+        }
+
+        // Request notification permission
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+
+        // Register service worker if available (mainly for Android)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:application/javascript,self.addEventListener("install",e=>self.skipWaiting());self.addEventListener("activate",e=>e.waitUntil(clients.claim()));').catch(() => {});
+        }
+
+        // Handle Enter key in input
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('newCustomerInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addCustomer();
+            });
+            initializeApp();
+            
+            // For iOS, also save to localStorage as backup
+            window.addEventListener('beforeunload', () => {
+                if (customers.length > 0) {
+                    localStorage.setItem('raven-loyalty-backup', JSON.stringify(customers));
+                }
+            });
+        });
+    </script>
+</body>
+</html>
